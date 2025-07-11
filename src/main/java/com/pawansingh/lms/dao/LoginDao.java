@@ -1,14 +1,14 @@
 package com.pawansingh.lms.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 
 public class LoginDao {
-    public String doLogin(Connection conn ,String userName, String password){
-        String query = "select * from login where user_name = ? and password = ?";
+    public String doLogin(String userName, String password){
 
-        try(PreparedStatement ps = conn.prepareStatement(query)){
+        String query = "select * from login where username = ? and password = ?";
+
+        try(Connection conn = DatabaseService.getConnection();
+            PreparedStatement ps = conn.prepareStatement(query)){
             ps.setString(1,userName);
             ps.setString(2, password);
 
@@ -16,11 +16,15 @@ public class LoginDao {
                 if(rs.next()){
                     return rs.getString("user_type");
                 }
-            }catch (Exception e){
-                System.out.println("Exception at Login Dao1");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        }catch (Exception e){
-            System.out.println("Exception at Login Dao2");
+        }
+        catch (ClassNotFoundException e) {
+            System.out.println("DatabaseServices Class not fount");
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return null;
     }
